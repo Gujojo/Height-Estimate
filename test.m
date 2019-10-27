@@ -1,14 +1,14 @@
-function [px, py] = test(img, jpg)
+function test(jpg, img,mask_ground,mask_target,mask_person1,...\
+    mask_person2,ref_height1,ref_height2,point_target,lines)
+    %% 绘制示意图部分，可以删去
     figure;
     hold on;
     set(gca,'YDir','reverse');
     for i = 1: 4
         points = jpg.shapes(i).points;
-        for j = 1: size(points, 1)
-            scatter(points(j, 1), points(j, 2),'k');
-        end
+        scatter(points(: , 1), points(: , 2),'k');
     end
-    for i = 5: 10
+    for i = 5: length(jpg.shapes)
         pointx = jpg.shapes(i).points(:, 1);
         pointy = jpg.shapes(i).points(:, 2);
         plot(pointx, pointy);
@@ -17,36 +17,19 @@ function [px, py] = test(img, jpg)
     H = size(img, 1);
     W = size(img, 2);
     
-    maskp = poly2mask(jpg.shapes(4).points(:,1),...
-        jpg.shapes(4).points(:,2), H, W);
-    [B, ~] = bwboundaries(maskp, 'noholes');
-    Boundary = B{1, 1};
-    py = Boundary(:, 1);
-    px = Boundary(:, 2);
-    fitAns = polyfit(px, py, 1);
-    maxX = 0;
-    minX = 0;
-    maxY = 0;
-    minY = 0;
-    for x = 1: W
-        y = fitAns(1)*x+fitAns(2);
-        if round(y) > 0 && round(y) < H && maskp(round(y), x)
-            if ~minX
-                minX = x;
-                minY = round(y);
-            end
-            if x > maxX
-                maxX = x;
-                maxY = round(y);
-            end
-        end
-    end
-    scatter(minX, minY,'b');
-    scatter(maxX, maxY,'b');
-    plot([minX; maxX], [minY; maxY]);
+    %% 添加部分
+    point1 = fitPerson(img, 1, mask_person1);
+    point2 = fitPerson(img, 1, mask_person2);
+    scatter(point1(:, 1), point1(:, 2),'b');
+    plot(point1(:, 1), point1(:, 2));
+    scatter(point2(:, 1), point2(:, 2),'b');
+    plot(point2(:, 1), point2(:, 2));
+
     
+    
+    %% 绘图部分
     axis equal;
-    set(gca, 'ylim', [0, 1440]);
-    set(gca, 'xlim', [0, 1080]);
+    set(gca, 'ylim', [0, H]);
+    set(gca, 'xlim', [0, W]);
 %     cftool;
 end

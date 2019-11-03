@@ -1,9 +1,9 @@
 function [coef] = VanishLine(lines)
-    [L,W] = size(lines);
+    [L, W] = size(lines);
 %     x = zeros(L,1);
 %     y = zeros(L,1);
     k = (lines(:,1)./lines(:,2))*(-1);    
-    index = 1:1:L;
+    index = 1:L;
 %     %斜率化为角度制
 %     k = atan(k);
 %     for m = 1:L
@@ -22,57 +22,80 @@ function [coef] = VanishLine(lines)
             end
         end
     end
-    %point中为斜率相邻的两直线的交点
-    point = zeros(L,2);
+    
+    temp = [];
+    
     for m = 1:L
-        if m==L
-            [point(L,1),point(L,2)] = SolvePt(lines(index(L),:),lines(index(1),:));
-        else
-            [point(m,1),point(m,2)]= SolvePt(lines(index(m),:),lines(index(m+1),:));
-        end
+        temp(m,:) = lines(index(m), :);
     end
-    minDis = 9999999.0;
+    lines = temp;
+    
+    %% 去重
+    delta = pi/180;
+    phi = atan((lines(:,1)./lines(:,2))*(-1));
+    temp_phi = [phi(2: end); phi(1)];
+    delta_phi = abs(phi-temp_phi);
+    lines(delta_phi < delta, : ) = [];
+    
+    L = size(lines, 1);
+    %% 分组
+    point = zeros(L,2);
+    for m = 1: L-1
+        [point(m,1),point(m,2)]= SolvePt(lines(m,:),lines(m+1,:));
+    end
+    [point(L,1),point(L,2)] = SolvePt(lines(L,:),lines(1,:));
+%     stem(point(:, 1), point(:, 2));
+    minDis = 1e8;
+    minM = 0;
+    minN = 0;
     minP = [0,0];
     for m = 1:L-1
         for n = m+1:L
-            temp = point;
-            temp(n,:) = [];
-            temp(m,:) = [];  %删除两个交点
-            p = polyfit(temp(:,1),temp(:,2),1);
-%             [y_fit,delta] = polyval(p,temp(:,1),S);
-            y_fit = polyval(p,temp(:,1));
-            delta = (y_fit - temp(:,2))'*(y_fit - temp(:,2));
-            if delta < minDis
-                minDis = delta;
-                minP = p;
+            line1_index = [m+1: n-1];
+            line2_index = [1: m-1, n+1: L];
+            dis1 = GroupVar(point(line1_index, : ))...
+                /sum(mean(point(line1_index, : )).^2);
+            dis2 = GroupVar(point(line2_index, : ))...
+                /sum(mean(point(line2_index, : )).^2);
+            dis = dis1+dis2;
+            if dis < minDis
+                minDis = dis;
+                minM = m;
+                minN = n;
             end
         end
     end
-    coef = minP;
-            
-     
-%     %分界线
-%     avg = (k(index(1))+k(index(L)))/2;
-%     sep = 0;
-%     % 第sep个元素为分界（即第一组有sep条线）
-%     for m = 1:L
-%         if k(index(m))<=avg
-%             sep = m-1;
-%             break
-%         end
-%     end
-%     count = 1;
-%     for m = 1:sep-1
-%         for n = m+1:sep
-%             [x(count,1),y(count,1)] = SolvePt(lines(index(m),:),lines(index(n),:));
-%             count = count+1;
-%         end
-%     end
-%     for m = sep+1:L-1
-%         for n = m+1:L
-%             [x(count,1),y(count,1)] = SolvePt(lines(index(m),:),lines(index(n),:));
-%             count = count+1;
-%         end
-%     end
-% 
-%     p = polyfit(x,y,1);
+    
+    %% 拟合
+    line1_index = [minM+1: minN];
+    line2_index = [1:minM, minN+1: L];
+
+    for m = 1: length(line1_index)
+        tmp = lines(line1_index(m),:);
+        tmpk = -tmp(1)/tmp(2);
+        tmpb = -tmp(3)/tmp(2);
+        refline(tmpk, tmpb);
+    end
+    
+    points1 = [];
+    points2 = [];
+    for m = 1: length(line1_index)-1
+        for n = m+1: length(line1_index)
+             [tmpx, tmpy] = SolvePt(lines(line1_index(m),:),lines(line1_index(n),:));
+             points1 = [points1; [tmpx, tmpy]];
+        end
+    end
+    stem(points1(:, 1), points1(:, 2));
+    for m = 1: length(line2_index)-1
+        for n = m+1: length(line2_index)
+             [tmpx, tmpy] = SolvePt(lines(line2_index(m),:),lines(line2_index(n),:));
+             points2 = [points2; [tmpx, tmpy]];
+        end
+    end
+    stem(points2(:, 1), points2(:, 2));
+    point1 = Refine(points1, 1/2);
+    point2 = Refine(points2, 1/2);
+    points = [point1; point2];
+    coef = polyfit(points(: , 1), points(: , 2), 1);
+
+end

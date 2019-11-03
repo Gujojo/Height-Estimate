@@ -2,7 +2,7 @@
 % 输出point为两个点，各列为[x, y]，各行为各个点
 % 输出line为[k, b]，表示建筑物测量线点斜式
 % 输出vanish_point为垂直方向的灭点
-function [point line vanish_point] = arcMeasure(person1_line,person2_line,point_target,maskt)
+function [point, line, vanish_point] = arcMeasure(person1_line,person2_line,point_target,maskt)
 %求出垂直地面方向的灭点
 [H,W,~] = size(maskt);
 v_x = (person2_line(2)-person1_line(2))/(person1_line(1)-person2_line(1));  
@@ -14,24 +14,33 @@ b = v_y - (point_target(2)-v_y)*v_x/(point_target(1)-v_x);
 line=[k,b];
 %建筑物的另一个点为测量线与掩膜的交点
     maxX2 = 0;
-    minX2 = 0;
     maxY2 = 0;
-    minY2 = 0;
     b = -b / k;
     k = 1 / k;
-    for y = 1: H
+%     for y = 1: H
+%         x = k*y + b;
+%         if round(x) > 0 && round(x) <= W && maskt(y, round(x))
+%             if ~minY2
+%                 minX2 = round(x);
+%                 minY2 = y;
+%             end
+%             if y > maxY2
+%                 maxX2 = round(x);
+%                 maxY2 = y;
+%             end
+%         end
+%     end
+    for y = point_target(2): H
         x = k*y + b;
         if round(x) > 0 && round(x) <= W && maskt(y, round(x))
-            if ~minY2
-                minX2 = round(x);
-                minY2 = y;
-            end
-            if y > maxY2
-                maxX2 = round(x);
-                maxY2 = y;
-            end
+
+            maxX2 = round(x);
+            maxY2 = y;
+            break;
+
         end
     end
+
     point=[maxX2,maxY2]; 
 
 end

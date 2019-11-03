@@ -1,7 +1,7 @@
-% clear all;
-% close all;
-% clc;
-img_id = 1;
+clear all;
+close all;
+clc;
+img_id = 3;
 img = imread([num2str(img_id),'.jpg']);
 img = imrotate(img,270);
 f = fileread([num2str(img_id),'.json']);
@@ -42,5 +42,5 @@ test(j, img, mask_ground,mask_target,mask_person1,...\
 %lines: several lines in the reference plain
 
 % %What you should do is to accomplish the following function
-% height = HeightEstimator(img,mask_ground,mask_target,mask_person1,...\
-%     mask_person2,ref_height1,ref_height2,point_target,lines);
+height = HeightEstimator(img,mask_ground,mask_target,mask_person1,...\
+    mask_person2,ref_height1,ref_height2,point_target,lines);

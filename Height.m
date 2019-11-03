@@ -1,10 +1,10 @@
-clear all;
-close all;
-clc;
-img_id = 3;
-img = imread(['./hw/',num2str(img_id),'.jpg']);
+% clear all;
+% close all;
+% clc;
+img_id = 1;
+img = imread([num2str(img_id),'.jpg']);
 img = imrotate(img,270);
-f = fileread(['./hw/',num2str(img_id),'.json']);
+f = fileread([num2str(img_id),'.json']);
 j = jsondecode(f);
 l_num = length(j.shapes)-4;
 [H,W,~] = size(img);

@@ -1,10 +1,8 @@
 clear all;
-close all;
-clc;
-img_id = 3;
-img = imread([num2str(img_id),'.jpg']);
+img_id = 1;
+img = imread(['./hw/',num2str(img_id),'.jpg']);
 img = imrotate(img,270);
-f = fileread([num2str(img_id),'.json']);
+f = fileread(['./hw/',num2str(img_id),'.json']);
 j = jsondecode(f);
 l_num = length(j.shapes)-4;
 [H,W,~] = size(img);
@@ -25,11 +23,6 @@ ref_height1 = j.ref_height1;
 ref_height2 = j.ref_height2;
 
 
-%% 新添部分
-test(j, img, mask_ground,mask_target,mask_person1,...\
-    mask_person2,ref_height1,ref_height2,point_target,lines);
-
-%% 原有部分
 %height: the estimated height of point_target in real world
 %img:RGB image
 %mask_ground: binary mask for the reference plain
@@ -41,6 +34,5 @@ test(j, img, mask_ground,mask_target,mask_person1,...\
 %point_target: the target point whose height is to be estimated
 %lines: several lines in the reference plain
 
-% %What you should do is to accomplish the following function
-height = HeightEstimator(img,mask_ground,mask_target,mask_person1,...\
-    mask_person2,ref_height1,ref_height2,point_target,lines);
+%What you should do is to accomplish the following function
+height = HeightEstimator(img,mask_ground,mask_target,mask_person1,mask_person2,ref_height1,ref_height2,point_target,lines);

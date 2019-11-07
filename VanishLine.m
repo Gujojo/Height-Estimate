@@ -70,12 +70,12 @@ function [coef] = VanishLine(lines)
     line1_index = [minM+1: minN];
     line2_index = [1:minM, minN+1: L];
 
-    for m = 1: length(line1_index)
-        tmp = lines(line1_index(m),:);
-        tmpk = -tmp(1)/tmp(2);
-        tmpb = -tmp(3)/tmp(2);
-        refline(tmpk, tmpb);
-    end
+%     for m = 1: length(line1_index)
+%         tmp = lines(line1_index(m),:);
+%         tmpk = -tmp(1)/tmp(2);
+%         tmpb = -tmp(3)/tmp(2);
+%         refline(tmpk, tmpb);
+%     end
     
     points1 = [];
     points2 = [];
@@ -85,14 +85,14 @@ function [coef] = VanishLine(lines)
              points1 = [points1; [tmpx, tmpy]];
         end
     end
-    stem(points1(:, 1), points1(:, 2));
+%     stem(points1(:, 1), points1(:, 2));
     for m = 1: length(line2_index)-1
         for n = m+1: length(line2_index)
              [tmpx, tmpy] = SolvePt(lines(line2_index(m),:),lines(line2_index(n),:));
              points2 = [points2; [tmpx, tmpy]];
         end
     end
-    stem(points2(:, 1), points2(:, 2));
+%     stem(points2(:, 1), points2(:, 2));
     point1 = Refine(points1, 1/2);
     point2 = Refine(points2, 1/2);
     points = [point1; point2];

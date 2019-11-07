@@ -31,35 +31,15 @@ function [point, line] = fitPerson(img, pos, maskp)
     
     line = [k, b];
     
-%% 遍历x方向求边界点，由于斜率一般比较大，精度不好
-%     maxX1 = 0;
-%     minX1 = 0;
-%     maxY1 = 0;
-%     minY1 = 0;
-%     for x = 1: W
-%         y = k*x + b;
-%         if round(y) > 0 && round(y) <= H && maskp(round(y), x)
-%             if ~minX1
-%                 minX1 = x;
-%                 minY1 = round(y);
-%             end
-%             if x > maxX1
-%                 maxX1 = x;
-%                 maxY1 = round(y);
-%             end
-%         end
-%     end
-%     point = [minX1, minY1; maxX1, maxY1];
-%     figure;
-%     hold on;
-%     scatter(px, py);
-%     scatter(point(:, 1), point(:, 2),'b');
-%     plot(point(:, 1), point(:, 2));
-%     axis equal;
-%     set(gca, 'ylim', [0, 1440]);
-%     set(gca, 'xlim', [0, 1080]);
-%     set(gca,'YDir','reverse');
+    for i = 1: 10
+        theta = atan(k);
+        if theta < 0
+            theta = theta + pi;
+        end
+        [k, b] = refit(pos, Boundary, pi/2-theta);
+    end
 
+    
 %% 遍历y方向求边界点
     maxX2 = 0;
     minX2 = 0;

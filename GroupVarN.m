@@ -1,3 +1,4 @@
+% 求一组点的均方差
 function dis = GroupVarN(points)
     if size(points, 1) == 0
         dis = 1e8;

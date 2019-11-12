@@ -20,12 +20,13 @@ function height = HeightEstimator(img,mask_ground,mask_target,mask_person1,...\
 %     end
 
 %% 求出地平面灭线
-    vanish_line=VanishLine(lines);
-    refline(vanish_line(1), vanish_line(2));
-    
+    pos = judge(mask_ground);
+    vanish_line=VanishLine(lines,img);
+    vline = refline(vanish_line(1), vanish_line(2));
+    vline.LineWidth = 3;
 %% 利用最小二乘法求出人的竖直线以及头脚两点
-    [point1,line1] = fitPerson(img, 1, mask_person1);
-    [point2,line2] = fitPerson(img, 1, mask_person2);
+    [point1,line1] = fitPerson(img, pos, mask_person1);
+    [point2,line2] = fitPerson(img, pos, mask_person2);
     % 绘制拟合结果
     scatter(point1(:, 1), point1(:, 2),'b');
     plot(point1(:, 1), point1(:, 2), 'linewidth', 2);
